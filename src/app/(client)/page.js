@@ -155,7 +155,7 @@ export default function Home() {
                         <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
                             <div className="relative h-48 w-full">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.033306969567!2d107.5544!3d-6.8925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sJl.+Cibaligo+Cluster+Pintu+Air+Kavling+No.+03!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31686.04997575213!2d107.55205045465941!3d-6.919717096382213!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5daa8471cbf%3A0x673b0abcb7153ab!2sSentra%20Dimsum%20Cimahi%20(%20Pusat%20)!5e0!3m2!1sid!2sid!4v1769713096009!5m2!1sid!2sid"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
