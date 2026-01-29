@@ -10,6 +10,18 @@ const snap = new Midtrans.Snap({
 
 export async function POST(request) {
     try {
+        // Time Validation (Close at 20:00 WIB)
+        const now = new Date();
+        const jakartaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+        const currentHour = jakartaTime.getHours();
+
+        if (currentHour >= 20 || currentHour < 10) {
+            return NextResponse.json(
+                { error: "Mohon maaf, pemesanan sudah ditutup. Kami buka pukul 10:00 - 20:00 WIB." },
+                { status: 400 }
+            );
+        }
+
         const { items, gross_amount, customer_details } = await request.json();
 
         const parameter = {

@@ -21,10 +21,17 @@ function LocationMarker({ position, setPosition }) {
     );
 }
 
-export default function LocationPicker({ storeLocation, onLocationSelect }) {
+export default function LocationPicker({ storeLocation, onLocationSelect, selectedPosition }) {
     // Default to store location if no position selected yet
     const [position, setPosition] = useState(null);
     const [distance, setDistance] = useState(0);
+
+    // Sync with external selectedPosition (e.g. from geocoding)
+    useEffect(() => {
+        if (selectedPosition && selectedPosition.lat && selectedPosition.lng) {
+            setPosition(selectedPosition);
+        }
+    }, [selectedPosition]);
 
     // Calculate distance using Haversine formula
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -61,13 +68,26 @@ export default function LocationPicker({ storeLocation, onLocationSelect }) {
         }
     }, [position, storeLocation]);
 
-    // Center map on store initially
-    const center = useMemo(() => [storeLocation.lat, storeLocation.lng], [storeLocation]);
+    // Center map on position or store initially
+    const center = useMemo(() => {
+        if (position) return [position.lat, position.lng];
+        return [storeLocation.lat, storeLocation.lng];
+    }, [storeLocation, position]);
+
+    // Fly to position when it changes
+    function MapUpdater({ center }) {
+        const map = useMapEvents({});
+        useEffect(() => {
+            map.flyTo(center, map.getZoom());
+        }, [center, map]);
+        return null;
+    }
 
     return (
         <div className="space-y-2">
             <div className="h-[300px] w-full rounded-lg overflow-hidden border border-gray-300 relative z-0">
                 <MapContainer center={center} zoom={13} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
+                    <MapUpdater center={center} />
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

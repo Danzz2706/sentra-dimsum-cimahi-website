@@ -150,12 +150,12 @@ export default function Home() {
                         <p className="mt-2 text-text-secondary">Kunjungi cabang terdekat kami di kota Anda</p>
                     </div>
 
-                    <div className="grid gap-8 md:grid-cols-3">
-                        {/* Cabang 1: Cimahi */}
+                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                        {/* Cabang 1: Cimahi (Pusat) */}
                         <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
                             <div className="relative h-48 w-full">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.033306969567!2d107.53727937499616!3d-6.886617993112398!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e45a20c4c4c9%3A0x6b4c6c4c4c4c4c4c!2sCimahi%2C%20West%20Java!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.033306969567!2d107.5544!3d-6.8925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sJl.+Cibaligo+Cluster+Pintu+Air+Kavling+No.+03!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
@@ -166,19 +166,19 @@ export default function Home() {
                             </div>
                             <div className="p-6">
                                 <h3 className="text-xl font-bold text-primary">Cabang Cimahi (Pusat)</h3>
-                                <p className="mt-2 text-sm text-gray-600">Jl. Jend. H. Amir Machmud No. 123, Cimahi Tengah</p>
+                                <p className="mt-2 text-sm text-gray-600">Jl. Cibaligo Cluster Pintu Air Kavling No. 03, Cigugur Tengah</p>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 21:00 WIB</span>
+                                    <span>10:00 - 20:00 WIB</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Cabang 2: Padalarang */}
+                        {/* Cabang 2: Melong */}
                         <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
                             <div className="relative h-48 w-full">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.2460756789!2d107.4728!3d-6.8369!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e30000000001%3A0x0!2sPadalarang!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.724770055309!2d107.5584244749966!3d-6.923467993076258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5003cfebfc3%3A0x7d8c6b11490c9bf8!2sSentra%20Dimsum%20Cimahi%203!5e0!3m2!1sid!2sid!4v1769711917409!5m2!1sid!2sid"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
@@ -189,19 +189,19 @@ export default function Home() {
                             </div>
                             <div className="p-6">
                                 <h3 className="text-xl font-bold text-primary">Cabang Melong</h3>
-                                <p className="mt-2 text-sm text-gray-600">Jl. Jend. H. Amir Machmud No. 123, Cimahi Tengah</p>
+                                <p className="mt-2 text-sm text-gray-600">Jl. Melong 3 No.30, Melong, Kec. Cimahi Sel., Kota Cimahi</p>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 22:00 WIB</span>
+                                    <span>10:00 - 20:00 WIB</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Cabang 3: Bandung */}
+                        {/* Cabang 3: Cibaligo */}
                         <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
                             <div className="relative h-48 w-full">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.833!2d107.609!3d-6.9147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e6398252477f%3A0x146a1f93d3e815b2!2sBandung%2C%20Bandung%20City%2C%20West%20Java!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.928551898608!2d107.55321771160152!3d-6.899148693071311!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5288e9df909%3A0x1825d20010709361!2sSentra%20Dimsum%20Cimahi%202!5e0!3m2!1sid!2sid!4v1769711951166!5m2!1sid!2sid"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0 }}
@@ -211,11 +211,34 @@ export default function Home() {
                                 ></iframe>
                             </div>
                             <div className="p-6">
-                                <h3 className="text-xl font-bold text-primary">Cabang Bandung</h3>
-                                <p className="mt-2 text-sm text-gray-600">Jl. Riau No. 45, Bandung Wetan</p>
+                                <h3 className="text-xl font-bold text-primary">Cabang Cibaligo</h3>
+                                <p className="mt-2 text-sm text-gray-600">Jl. Cigugur Tengah No.13, Cigugur Tengah, Cimahi Tengah</p>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>09:00 - 21:00 WIB</span>
+                                    <span>10:00 - 20:00 WIB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Cabang 4: Cimahi Utara (Cibabat) */}
+                        <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
+                            <div className="relative h-48 w-full">
+                                <iframe
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63378.38489543486!2d107.47866134863283!3d-6.872737299999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5006744d193%3A0x609f056dfbcdb69d!2sSentra%20Dimsum%20Cimahi%204!5e0!3m2!1sid!2sid!4v1769711886942!5m2!1sid!2sid"
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    allowFullScreen=""
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                ></iframe>
+                            </div>
+                            <div className="p-6">
+                                <h3 className="text-xl font-bold text-primary">Cabang Cimahi Utara</h3>
+                                <p className="mt-2 text-sm text-gray-600">Jl. Raden Demang Hardjakusumah No.2, Cibabat, Cimahi Utara</p>
+                                <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                    <span>10:00 - 20:00 WIB</span>
                                 </div>
                             </div>
                         </div>

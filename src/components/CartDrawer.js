@@ -59,12 +59,77 @@ export default function CartDrawer() {
         address: "",
     });
     const [orderType, setOrderType] = useState("takeaway"); // 'takeaway' or 'delivery'
+    const [isShopClosed, setIsShopClosed] = useState(false);
+
+    useEffect(() => {
+        const checkTime = () => {
+            const now = new Date();
+            const jakartaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
+            const hour = jakartaTime.getHours();
+            setIsShopClosed(hour >= 20 || hour < 10);
+        };
+
+        checkTime();
+        // Update every minute
+        const interval = setInterval(checkTime, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     // Store Settings & Shipping Logic
     const [storeSettings, setStoreSettings] = useState(null);
     const [shippingCost, setShippingCost] = useState(0);
     const [deliveryDistance, setDeliveryDistance] = useState(0);
     const [deliveryCoords, setDeliveryCoords] = useState(null);
+    const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+
+    // Search & Geocoding Logic
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+
+    // Search Address (Nominatim)
+    useEffect(() => {
+        if (!searchQuery || searchQuery.length < 3) {
+            setSearchResults([]);
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setIsSearching(true);
+            try {
+                // Limit to Indonesia/Bandung area if possible via viewbox, but general query is fine for now
+                // Adding 'Cimahi' or 'Bandung' to query might help context if needed, but user might be outside.
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1`);
+                const data = await response.json();
+                setSearchResults(data || []);
+            } catch (error) {
+                console.error("Search error:", error);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 800);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const handleSelectResult = (result) => {
+        const lat = parseFloat(result.lat);
+        const lng = parseFloat(result.lon);
+
+        // Update Map Center & Pin
+        setDeliveryCoords({ lat, lng });
+
+        // Update Address Text
+        const formattedAddress = result.display_name;
+        setCustomerData(prev => ({
+            ...prev,
+            address: formattedAddress
+        }));
+
+        // Clear search
+        setSearchQuery(""); // Or keep it? Clearing looks cleaner for "selection made"
+        setSearchResults([]);
+    };
 
     useEffect(() => {
         // Fetch store settings
@@ -126,6 +191,10 @@ export default function CartDrawer() {
     }, []);
 
     const handleCheckout = async () => {
+        if (isShopClosed) {
+            alert("Mohon maaf, pemesanan sudah ditutup (Tutup pukul 20:00 WIB). Silahkan datang lagi besok!");
+            return;
+        }
         if (!customerData.name || !customerData.phone) {
             alert("Mohon lengkapi Nama dan No. HP");
             return;
@@ -180,6 +249,10 @@ export default function CartDrawer() {
     };
 
     const handlePayment = async () => {
+        if (isShopClosed) {
+            alert("Mohon maaf, pemesanan sudah ditutup (Tutup pukul 20:00 WIB).");
+            return;
+        }
         if (!customerData.name || !customerData.phone) {
             alert("Mohon lengkapi Nama dan No. HP");
             return;
@@ -350,10 +423,51 @@ export default function CartDrawer() {
                             {/* Map for Delivery */}
                             {orderType === "delivery" && storeSettings && storeSettings.store_lat && (
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Pilih Lokasi Pengantaran</label>
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Cari Lokasi Pengantaran</label>
+                                    </div>
+
+                                    {/* Search Input */}
+                                    <div className="relative z-20">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Cari jalan, gedung, atau daerah..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full rounded-lg border border-gray-300 pl-10 pr-4 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                                            />
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                            {isSearching && (
+                                                <div className="absolute right-3 top-2.5">
+                                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-primary"></div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Search Results Dropdown */}
+                                        {searchResults.length > 0 && (
+                                            <ul className="absolute mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                                                {searchResults.map((result, index) => (
+                                                    <li
+                                                        key={index}
+                                                        onClick={() => handleSelectResult(result)}
+                                                        className="cursor-pointer border-b border-gray-50 px-4 py-3 hover:bg-gray-50 last:border-b-0"
+                                                    >
+                                                        <p className="text-sm font-medium text-gray-900 line-clamp-1">{result.name || result.display_name.split(',')[0]}</p>
+                                                        <p className="text-xs text-gray-500 line-clamp-2">{result.display_name}</p>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+
                                     <LocationPicker
                                         storeLocation={{ lat: storeSettings.store_lat, lng: storeSettings.store_lng }}
                                         onLocationSelect={handleLocationSelect}
+                                        selectedPosition={deliveryCoords}
                                     />
                                 </div>
                             )}
@@ -490,14 +604,16 @@ export default function CartDrawer() {
                         </div>
                         <button
                             onClick={handlePayment}
-                            className="w-full rounded-full bg-primary px-4 py-4 font-bold text-white transition-all hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 active:scale-95 flex items-center justify-center gap-2"
+                            disabled={isShopClosed}
+                            className={`w-full rounded-full px-4 py-4 font-bold text-white transition-all flex items-center justify-center gap-2 ${isShopClosed ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 active:scale-95'}`}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" x2="22" y1="10" y2="10" /></svg>
                             Bayar Sekarang (QRIS)
                         </button>
                         <button
                             onClick={handleCheckout}
-                            className="w-full rounded-full bg-green-600 px-4 py-4 font-bold text-white transition-all hover:bg-green-700 hover:shadow-lg hover:shadow-green-200 active:scale-95 flex items-center justify-center gap-2"
+                            disabled={isShopClosed}
+                            className={`w-full rounded-full px-4 py-4 font-bold text-white transition-all flex items-center justify-center gap-2 ${isShopClosed ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 hover:shadow-lg hover:shadow-green-200 active:scale-95'}`}
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -514,6 +630,13 @@ export default function CartDrawer() {
                             </svg>
                             Checkout via WhatsApp
                         </button>
+
+                        {isShopClosed && (
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 mx-6 text-center">
+                                <p className="font-bold text-red-800">Toko Tutup</p>
+                                <p className="text-sm text-red-600">Pemesanan ditutup. Buka pukul 10:00 - 20:00 WIB.</p>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

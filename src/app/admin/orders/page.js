@@ -127,6 +127,128 @@ export default function OrdersPage() {
         document.body.removeChild(link);
     };
 
+    const handlePrintReport = () => {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return alert("Please allow popups to print report");
+
+        // Calculate Summary
+        const totalRevenue = filteredOrders.reduce((sum, order) => sum + (order.status !== 'cancelled' ? order.total_price : 0), 0);
+        const totalOrders = filteredOrders.length;
+        const totalSuccess = filteredOrders.filter(o => ['paid', 'processed', 'completed'].includes(o.status)).length;
+        const totalPending = filteredOrders.filter(o => o.status === 'pending').length;
+
+        const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Laporan Penjualan - Sentra Dimsum</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #333; max-width: 1000px; margin: 0 auto; }
+                    .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+                    .company-name { font-size: 28px; font-weight: bold; margin: 0; color: #000; letter-spacing: 1px; }
+                    .report-title { font-size: 20px; margin: 10px 0 5px; font-weight: 600; }
+                    .meta-info { font-size: 14px; color: #666; }
+                    
+                    .summary-box { display: flex; gap: 20px; margin-bottom: 30px; justify-content: space-between; background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; }
+                    .summary-item { text-align: center; flex: 1; }
+                    .summary-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+                    .summary-value { font-size: 24px; font-weight: bold; color: #111; }
+                    
+                    table { w-full; border-collapse: collapse; width: 100%; font-size: 12px; }
+                    th { text-align: left; border-bottom: 2px solid #000; padding: 10px; font-weight: bold; text-transform: uppercase; }
+                    td { border-bottom: 1px solid #eee; padding: 10px; vertical-align: top; }
+                    tr:last-child td { border-bottom: none; }
+                    
+                    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; display: inline-block; }
+                    .status-paid, .status-completed, .status-processed { background: #dcfce7; color: #166534; }
+                    .status-pending { background: #fef9c3; color: #854d0e; }
+                    .status-cancelled { background: #fee2e2; color: #991b1b; }
+                    
+                    .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
+                    
+                    @media print {
+                        body { padding: 0; }
+                        .no-print { display: none; }
+                        table { page-break-inside: auto; }
+                        tr { page-break-inside: avoid; page-break-after: auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1 class="company-name">SENTRA DIMSUM CIMAHI</h1>
+                    <p class="report-title">LAPORAN PENJUALAN</p>
+                    <p className="meta-info">Dicetak pada: ${today}</p>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-item">
+                        <div class="summary-label">Total Pendapatan</div>
+                        <div class="summary-value">${formatPrice(totalRevenue)}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Total Pesanan</div>
+                        <div class="summary-value">${totalOrders}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Pesanan Sukses</div>
+                        <div class="summary-value">${totalSuccess}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Menunggu</div>
+                        <div class="summary-value">${totalPending}</div>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tanggal</th>
+                            <th>Pelanggan</th>
+                            <th>Tipe</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredOrders.map(order => `
+                            <tr>
+                                <td style="font-family: monospace;">#${order.id.slice(0, 6)}</td>
+                                <td>${new Date(order.created_at).toLocaleDateString("id-ID")}</td>
+                                <td>
+                                    <strong>${order.customer_name}</strong><br>
+                                    <span style="color: #666;">${order.customer_phone}</span>
+                                </td>
+                                <td>${order.order_type === 'delivery' ? 'Delivery' : 'Takeaway'}</td>
+                                <td>${order.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</td>
+                                <td style="font-weight: bold;">${formatPrice(order.total_price)}</td>
+                                <td>
+                                    <span class="status-badge status-${order.status}">${order.status}</span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="footer">
+                    <p>Laporan ini digenerate otomatis oleh sistem Sentra Dimsum Cimahi.</p>
+                </div>
+
+                <script>
+                    window.onload = function() { window.print(); }
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+    };
+
     const handlePrintReceipt = (order) => {
         const printWindow = window.open('', '_blank');
         if (!printWindow) return alert("Please allow popups to print receipt");
@@ -191,6 +313,13 @@ export default function OrdersPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-3xl font-bold text-gray-900">Pesanan Masuk</h1>
                 <div className="flex gap-2">
+                    <button
+                        onClick={handlePrintReport}
+                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white hover:bg-blue-700 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                        Print Laporan
+                    </button>
                     <button
                         onClick={handleExport}
                         className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-bold text-white hover:bg-green-700 transition-colors"
