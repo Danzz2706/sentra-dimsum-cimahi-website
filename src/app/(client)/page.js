@@ -147,7 +147,7 @@ export default function Home() {
                 <div className="container mx-auto max-w-6xl px-4">
                     <div className="mb-12 text-center">
                         <h2 className="text-3xl font-bold text-gray-900">Lokasi Kami</h2>
-                        <p className="mt-2 text-text-secondary">Kunjungi cabang terdekat kami di kota Anda</p>
+                        <p className="mt-2 text-text-secondary">Kunjungi cabang terdekat kami di Daerah Anda</p>
                     </div>
 
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -165,7 +165,7 @@ export default function Home() {
                                 ></iframe>
                             </div>
                             <div className="p-6">
-                                <h3 className="text-xl font-bold text-primary">Cabang Cimahi (Pusat)</h3>
+                                <h3 className="text-xl font-bold text-primary">Kantor Sentra Dimsum Cimahi (Pusat)</h3>
                                 <p className="mt-2 text-sm text-gray-600">Jl. Cibaligo Cluster Pintu Air Kavling No. 03, Cigugur Tengah</p>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
