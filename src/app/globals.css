@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  /* Premium Food Palette - Warm Orange/Amber */
+  --color-primary: #F97316;
+  /* Orange 500 */
+  --color-primary-light: #FB923C;
+  /* Orange 400 */
+  --color-primary-dark: #C2410C;
+  /* Orange 700 */
+
+  --color-secondary: #FBBF24;
+  /* Amber 400 */
+  --color-secondary-light: #FCD34D;
+  /* Amber 300 */
+
+  --color-background: #FFF7ED;
+  /* Orange 50 */
+  --color-surface: #FFFFFF;
+
+  --color-text-primary: #431407;
+  /* Warm Dark Brown */
+  --color-text-secondary: #7C2D12;
+  /* Warm Brown */
+
+  --color-accent: #1F2937;
+}
+
+/* Custom Utilities */
+@utility glass {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@utility text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: white;
 }
