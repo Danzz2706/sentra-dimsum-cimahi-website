@@ -1,108 +1,164 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-
-function LocationMarker({ position, setPosition }) {
-    const map = useMapEvents({
-        click(e) {
-            setPosition(e.latlng);
-            map.flyTo(e.latlng, map.getZoom());
-        },
-    });
-
-    return position === null ? null : (
-        <Marker position={position}>
-            <Popup>Lokasi Pengiriman</Popup>
-        </Marker>
-    );
-}
+import { useEffect, useRef, useState } from "react";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 export default function LocationPicker({ storeLocation, onLocationSelect, selectedPosition }) {
-    // Default to store location if no position selected yet
-    const [position, setPosition] = useState(null);
+    const mapContainer = useRef(null);
+    const map = useRef(null);
+    const storeMarker = useRef(null);
+    const customerMarker = useRef(null);
     const [distance, setDistance] = useState(0);
-
-    // Sync with external selectedPosition (e.g. from geocoding)
-    useEffect(() => {
-        if (selectedPosition && selectedPosition.lat && selectedPosition.lng) {
-            setPosition(selectedPosition);
-        }
-    }, [selectedPosition]);
 
     // Calculate distance using Haversine formula
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
         const R = 6371; // Radius of the earth in km
-        const dLat = deg2rad(lat2 - lat1);
-        const dLon = deg2rad(lon2 - lon1);
+        const dLat = (lat2 - lat1) * (Math.PI / 180);
+        const dLon = (lon2 - lon1) * (Math.PI / 180);
         const a =
             Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
             Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const d = R * c; // Distance in km
-        return d;
+        return R * c; // Distance in km
     };
 
-    const deg2rad = (deg) => {
-        return deg * (Math.PI / 180);
-    };
-
+    // Initialize Map
     useEffect(() => {
-        if (position && storeLocation) {
-            const dist = calculateDistance(
-                storeLocation.lat,
-                storeLocation.lng,
-                position.lat,
-                position.lng
-            );
-            setDistance(dist);
-            onLocationSelect({
-                lat: position.lat,
-                lng: position.lng,
-                distance: dist
+        if (map.current) return;
+
+        const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+        if (!apiKey) {
+            console.error("MapTiler API Key is missing");
+            return;
+        }
+
+        map.current = new maplibregl.Map({
+            container: mapContainer.current,
+            style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${apiKey}`,
+            center: [storeLocation.lng, storeLocation.lat],
+            zoom: 14,
+            attributionControl: true
+        });
+
+        map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        // Add Click Listener
+        map.current.on('click', (e) => {
+            handleCustomerLocationChange(e.lngLat.lat, e.lngLat.lng);
+        });
+
+    }, []);
+
+    // Handle Store Location Updates (Branch Switch)
+    useEffect(() => {
+        if (!map.current || !storeLocation) return;
+
+        // Update Map Center
+        map.current.flyTo({
+            center: [storeLocation.lng, storeLocation.lat],
+            zoom: 14,
+            essential: true
+        });
+
+        // Update Store Marker
+        if (storeMarker.current) storeMarker.current.remove();
+
+        const el = document.createElement('div');
+        el.className = 'marker';
+        el.style.backgroundImage = 'url(https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png)'; // Fallback or use CSS
+        // Simple default marker is fine, but let's color it if possible or use default blue?
+        // MapLibre default marker is blue. We can change color.
+
+        storeMarker.current = new maplibregl.Marker({ color: "#ea580c" }) // Orange-600 (Primary)
+            .setLngLat([storeLocation.lng, storeLocation.lat])
+            .setPopup(new maplibregl.Popup().setHTML("<b>Lokasi Toko</b><br>Sentra Dimsum"))
+            .addTo(map.current);
+
+        // Recalculate distance if customer marker exists
+        if (customerMarker.current) {
+            const lngLat = customerMarker.current.getLngLat();
+            updateDistance(storeLocation.lat, storeLocation.lng, lngLat.lat, lngLat.lng);
+        }
+
+    }, [storeLocation]);
+
+    // Handle External Selected Position Updates (Search)
+    useEffect(() => {
+        if (selectedPosition && selectedPosition.lat && selectedPosition.lng) {
+            handleCustomerLocationChange(selectedPosition.lat, selectedPosition.lng, false);
+            // Fly to it
+            if (map.current) {
+                map.current.flyTo({
+                    center: [selectedPosition.lng, selectedPosition.lat],
+                    zoom: 15,
+                    essential: true
+                });
+            }
+        }
+    }, [selectedPosition]);
+
+    // Reverse Geocoding (Coords -> Address)
+    const fetchAddress = async (lat, lng) => {
+        try {
+            const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+            const response = await fetch(`https://api.maptiler.com/geocoding/${lng},${lat}.json?key=${apiKey}`);
+            const data = await response.json();
+
+            if (data.features && data.features.length > 0) {
+                return data.features[0].place_name;
+            }
+        } catch (error) {
+            console.error("Reverse geocoding error:", error);
+        }
+        return null;
+    };
+
+    const handleCustomerLocationChange = async (lat, lng, emit = true) => {
+        if (!map.current) return;
+
+        // Update/Create Marker
+        if (customerMarker.current) {
+            customerMarker.current.setLngLat([lng, lat]);
+        } else {
+            customerMarker.current = new maplibregl.Marker({ color: "#2563eb", draggable: true }) // Blue-600
+                .setLngLat([lng, lat])
+                .addTo(map.current);
+
+            customerMarker.current.on('dragend', async () => {
+                const newPos = customerMarker.current.getLngLat();
+                await handleCustomerLocationChange(newPos.lat, newPos.lng);
             });
         }
-    }, [position, storeLocation]);
 
-    // Center map on position or store initially
-    const center = useMemo(() => {
-        if (position) return [position.lat, position.lng];
-        return [storeLocation.lat, storeLocation.lng];
-    }, [storeLocation, position]);
+        updateDistance(storeLocation.lat, storeLocation.lng, lat, lng);
 
-    // Fly to position when it changes
-    function MapUpdater({ center }) {
-        const map = useMapEvents({});
-        useEffect(() => {
-            map.flyTo(center, map.getZoom());
-        }, [center, map]);
-        return null;
-    }
+        if (emit) {
+            const dist = calculateDistance(storeLocation.lat, storeLocation.lng, lat, lng);
+            const address = await fetchAddress(lat, lng);
+
+            onLocationSelect({
+                lat: lat,
+                lng: lng,
+                distance: dist,
+                address: address // Pass address back to parent
+            });
+        }
+    };
+
+    const updateDistance = (lat1, lon1, lat2, lon2) => {
+        const dist = calculateDistance(lat1, lon1, lat2, lon2);
+        setDistance(dist);
+    };
 
     return (
         <div className="space-y-2">
             <div className="h-[300px] w-full rounded-lg overflow-hidden border border-gray-300 relative z-0">
-                <MapContainer center={center} zoom={13} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
-                    <MapUpdater center={center} />
-                    <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    {/* Store Marker */}
-                    <Marker position={center}>
-                        <Popup>Lokasi Toko (Sentra Dimsum)</Popup>
-                    </Marker>
-
-                    {/* Customer Marker */}
-                    <LocationMarker position={position} setPosition={setPosition} />
-                </MapContainer>
+                <div ref={mapContainer} className="h-full w-full" />
             </div>
 
-            {position ? (
+            {distance > 0 ? (
                 <div className="text-sm bg-blue-50 p-3 rounded-lg text-blue-800 flex justify-between items-center">
                     <span>Jarak pengiriman:</span>
                     <span className="font-bold">{distance.toFixed(2)} km</span>

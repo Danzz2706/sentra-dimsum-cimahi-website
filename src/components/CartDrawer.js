@@ -6,8 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { BRANCHES } from "@/data/branches";
 
-// Dynamically import LocationPicker to avoid SSR issues with Leaflet
+// Dynamically import LocationPicker to avoid SSR issues
 const LocationPicker = dynamic(() => import("./LocationPicker"), {
     ssr: false,
     loading: () => <div className="h-[300px] w-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center text-gray-400">Memuat Peta...</div>
@@ -59,6 +60,7 @@ export default function CartDrawer() {
         address: "",
     });
     const [orderType, setOrderType] = useState("takeaway"); // 'takeaway' or 'delivery'
+    const [selectedBranch, setSelectedBranch] = useState(BRANCHES[0]);
     const [isShopClosed, setIsShopClosed] = useState(false);
 
     useEffect(() => {
@@ -97,11 +99,13 @@ export default function CartDrawer() {
         const timer = setTimeout(async () => {
             setIsSearching(true);
             try {
-                // Limit to Indonesia/Bandung area if possible via viewbox, but general query is fine for now
-                // Adding 'Cimahi' or 'Bandung' to query might help context if needed, but user might be outside.
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1`);
+                const apiKey = process.env.NEXT_PUBLIC_MAPTILER_API_KEY;
+                // Prioritize Indonesia bounds: 95.0, -11.0, 141.0, 6.0
+                const response = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(searchQuery)}.json?key=${apiKey}&bbox=106.0,-8.0,109.0,-6.0&limit=5`);
+                // Bounds focused on West Java for better local results, or remove bbox for global
+
                 const data = await response.json();
-                setSearchResults(data || []);
+                setSearchResults(data.features || []);
             } catch (error) {
                 console.error("Search error:", error);
             } finally {
@@ -113,14 +117,15 @@ export default function CartDrawer() {
     }, [searchQuery]);
 
     const handleSelectResult = (result) => {
-        const lat = parseFloat(result.lat);
-        const lng = parseFloat(result.lon);
+        // MapTiler returns center as [lng, lat]
+        const lng = result.center[0];
+        const lat = result.center[1];
 
         // Update Map Center & Pin
         setDeliveryCoords({ lat, lng });
 
         // Update Address Text
-        const formattedAddress = result.display_name;
+        const formattedAddress = result.place_name;
         setCustomerData(prev => ({
             ...prev,
             address: formattedAddress
@@ -161,8 +166,13 @@ export default function CartDrawer() {
 
         setShippingCost(calculatedCost);
 
-        // Auto-fill address with coords if empty (user can edit)
-        if (!customerData.address) {
+        // Use specific address from geocoding if available, else standard fallback
+        if (location.address) {
+            setCustomerData(prev => ({
+                ...prev,
+                address: location.address
+            }));
+        } else if (!customerData.address) {
             setCustomerData(prev => ({
                 ...prev,
                 address: `Lokasi Map: ${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`
@@ -219,7 +229,9 @@ export default function CartDrawer() {
                         user_id: user?.id || null,
                         customer_name: customerData.name,
                         customer_phone: customerData.phone,
-                        customer_address: customerData.address,
+                        customer_address: orderType === 'takeaway'
+                            ? `AMBIL SENDIRI: ${selectedBranch.name}`
+                            : `${customerData.address} (Dikirim dari: ${selectedBranch.name})`,
                         total_price: finalTotal,
                         items: cart,
                         status: "pending",
@@ -272,7 +284,9 @@ export default function CartDrawer() {
                         user_id: user?.id || null,
                         customer_name: customerData.name,
                         customer_phone: customerData.phone,
-                        customer_address: customerData.address,
+                        customer_address: orderType === 'takeaway'
+                            ? `AMBIL SENDIRI: ${selectedBranch.name}`
+                            : `${customerData.address} (Dikirim dari: ${selectedBranch.name})`,
                         total_price: finalTotal,
                         items: cart,
                         status: "pending",
@@ -401,6 +415,30 @@ export default function CartDrawer() {
                                 </button>
                             </div>
 
+                            {/* Branch Selection */}
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-gray-500 uppercase">
+                                    {orderType === "takeaway" ? "Pilih Lokasi Pengambilan" : "Dikirim dari Cabang"}
+                                </label>
+                                <select
+                                    value={selectedBranch.id}
+                                    onChange={(e) => {
+                                        const branch = BRANCHES.find(b => b.id === parseInt(e.target.value));
+                                        setSelectedBranch(branch);
+                                    }}
+                                    className="w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-primary bg-white"
+                                >
+                                    {BRANCHES.map((branch) => (
+                                        <option key={branch.id} value={branch.id}>
+                                            {branch.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {orderType === "takeaway" && (
+                                    <p className="text-xs text-gray-500">{selectedBranch.address}</p>
+                                )}
+                            </div>
+
                             <div>
                                 <input
                                     type="text"
@@ -452,12 +490,12 @@ export default function CartDrawer() {
                                             <ul className="absolute mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
                                                 {searchResults.map((result, index) => (
                                                     <li
-                                                        key={index}
+                                                        key={result.id || index}
                                                         onClick={() => handleSelectResult(result)}
                                                         className="cursor-pointer border-b border-gray-50 px-4 py-3 hover:bg-gray-50 last:border-b-0"
                                                     >
-                                                        <p className="text-sm font-medium text-gray-900 line-clamp-1">{result.name || result.display_name.split(',')[0]}</p>
-                                                        <p className="text-xs text-gray-500 line-clamp-2">{result.display_name}</p>
+                                                        <p className="text-sm font-medium text-gray-900 line-clamp-1">{result.text}</p>
+                                                        <p className="text-xs text-gray-500 line-clamp-2">{result.place_name}</p>
                                                     </li>
                                                 ))}
                                             </ul>
@@ -465,7 +503,7 @@ export default function CartDrawer() {
                                     </div>
 
                                     <LocationPicker
-                                        storeLocation={{ lat: storeSettings.store_lat, lng: storeSettings.store_lng }}
+                                        storeLocation={{ lat: selectedBranch.lat, lng: selectedBranch.lng }}
                                         onLocationSelect={handleLocationSelect}
                                         selectedPosition={deliveryCoords}
                                     />
