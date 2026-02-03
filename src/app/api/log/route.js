@@ -8,7 +8,7 @@ export async function POST(request) {
         const { user_id, user_email, action, details } = body;
 
         // Get IP address
-        const headersList = headers();
+        const headersList = await headers();
         const ip = headersList.get('x-forwarded-for') || 'unknown';
 
         // Initialize Supabase Admin Client (Service Role) to ensure we can write to audit_logs

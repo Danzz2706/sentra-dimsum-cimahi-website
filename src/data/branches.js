@@ -19,12 +19,5 @@ export const BRANCHES = [
         address: "Jl. Cigugur Tengah No.13, Cigugur Tengah, Cimahi Tengah",
         lat: -6.899149,
         lng: 107.555798,
-    },
-    {
-        id: 4,
-        name: "Cabang Cimahi Utara",
-        address: "Jl. Raden Demang Hardjakusumah No.2, Cibabat, Cimahi Utara",
-        lat: -6.872737,
-        lng: 107.554879,
     }
 ];

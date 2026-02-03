@@ -93,6 +93,15 @@ export default function OrderStatusPage() {
         const phoneNumber = "6281770697325"; // Replace with actual number
         let message = `Halo Sentra Dimsum, saya mau konfirmasi pesanan #${order.id}:\n\n`;
         message += `Nama: ${order.customer_name}\n`;
+
+        // Add items details
+        message += `*Detail Pesanan:*\n`;
+        order.items.forEach(item => {
+            const note = item.note ? ` (${item.note})` : '';
+            message += `- ${item.name} x${item.quantity}${note}\n`;
+        });
+        message += `\n`;
+
         message += `Total: ${formatPrice(order.total_price)}\n\n`;
         message += "Mohon diproses ya kak.";
 

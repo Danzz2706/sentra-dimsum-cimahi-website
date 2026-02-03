@@ -220,6 +220,18 @@ export default function CartDrawer() {
             // You might want to enforce map selection, or just allow manual address
         }
 
+        // Prepare Items
+        const orderItems = [...cart];
+        if (orderType === 'delivery' && shippingCost > 0) {
+            orderItems.push({
+                uniqueId: 'shipping-cost',
+                name: 'Ongkos Kirim',
+                price: shippingCost,
+                quantity: 1,
+                note: deliveryDistance ? `${deliveryDistance.toFixed(1)} km` : ''
+            });
+        }
+
         try {
             // 1. Save Order to Supabase
             const { data: orderData, error: orderError } = await supabase
@@ -233,7 +245,7 @@ export default function CartDrawer() {
                             ? `AMBIL SENDIRI: ${selectedBranch.name}`
                             : `${customerData.address} (Dikirim dari: ${selectedBranch.name})`,
                         total_price: finalTotal,
-                        items: cart,
+                        items: orderItems,
                         status: "pending",
                         order_type: orderType,
                         payment_method: "whatsapp",
@@ -275,6 +287,18 @@ export default function CartDrawer() {
             return;
         }
 
+        // Prepare Items
+        const orderItems = [...cart];
+        if (orderType === 'delivery' && shippingCost > 0) {
+            orderItems.push({
+                uniqueId: 'shipping-cost',
+                name: 'Ongkos Kirim',
+                price: shippingCost,
+                quantity: 1,
+                note: deliveryDistance ? `${deliveryDistance.toFixed(1)} km` : ''
+            });
+        }
+
         try {
             // 1. Save Order to Supabase
             const { data: orderData, error: orderError } = await supabase
@@ -288,7 +312,7 @@ export default function CartDrawer() {
                             ? `AMBIL SENDIRI: ${selectedBranch.name}`
                             : `${customerData.address} (Dikirim dari: ${selectedBranch.name})`,
                         total_price: finalTotal,
-                        items: cart,
+                        items: orderItems,
                         status: "pending",
                         order_type: orderType,
                         payment_method: "qris"
