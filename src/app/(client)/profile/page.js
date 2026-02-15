@@ -64,6 +64,8 @@ export default function ProfilePage() {
         e.preventDefault();
         setUpdateLoading(true);
 
+        console.log("Updating profile with:", formData);
+
         try {
             const { data, error } = await supabase.auth.updateUser({
                 data: {
@@ -72,9 +74,23 @@ export default function ProfilePage() {
                 }
             });
 
-            if (error) throw error;
+            if (error) {
+                console.error("Supabase Update Error:", error);
+                throw error;
+            }
 
-            setUser(data.user);
+            console.log("Update Success:", data);
+
+            // Force refresh session to ensure metadata is up to date
+            const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
+            if (sessionError) console.error("Session Refresh Error:", sessionError);
+
+            if (session) {
+                setUser(session.user);
+            } else {
+                setUser(data.user);
+            }
+
             setIsEditing(false);
             toast.success("Profil berhasil diperbarui");
             router.refresh();
