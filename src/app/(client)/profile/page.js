@@ -11,6 +11,12 @@ export default function ProfilePage() {
     const [user, setUser] = useState(null);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [updateLoading, setUpdateLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        full_name: "",
+        phone: ""
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -23,6 +29,10 @@ export default function ProfilePage() {
             }
 
             setUser(session.user);
+            setFormData({
+                full_name: session.user.user_metadata?.full_name || "",
+                phone: session.user.user_metadata?.phone || ""
+            });
 
             // Fetch orders
             const { data: ordersData, error } = await supabase
@@ -48,6 +58,32 @@ export default function ProfilePage() {
         await supabase.auth.signOut();
         router.push("/");
         router.refresh();
+    };
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault();
+        setUpdateLoading(true);
+
+        try {
+            const { data, error } = await supabase.auth.updateUser({
+                data: {
+                    full_name: formData.full_name,
+                    phone: formData.phone
+                }
+            });
+
+            if (error) throw error;
+
+            setUser(data.user);
+            setIsEditing(false);
+            toast.success("Profil berhasil diperbarui");
+            router.refresh();
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            toast.error("Gagal memperbarui profil: " + error.message);
+        } finally {
+            setUpdateLoading(false);
+        }
     };
 
     const formatPrice = (price) => {
@@ -96,15 +132,77 @@ export default function ProfilePage() {
                                     <p className="text-sm text-white/80 mt-1">{user.user_metadata.phone}</p>
                                 )}
                             </div>
-                            <button
-                                onClick={handleLogout}
-                                className="rounded-lg bg-white/20 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/30 backdrop-blur-sm"
-                            >
-                                Keluar
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="rounded-lg bg-white/20 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/30 backdrop-blur-sm"
+                                >
+                                    Edit Profil
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="rounded-lg bg-red-500/80 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-red-600/80 backdrop-blur-sm"
+                                >
+                                    Keluar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Edit Profile Modal */}
+                <AnimatePresence>
+                    {isEditing && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+                            >
+                                <h2 className="mb-4 text-xl font-bold text-gray-900">Edit Profil</h2>
+                                <form onSubmit={handleUpdateProfile} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                                        <input
+                                            type="text"
+                                            value={formData.full_name}
+                                            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                                            className="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-primary"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700">Nomor WhatsApp</label>
+                                        <input
+                                            type="tel"
+                                            value={formData.phone}
+                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            className="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-primary"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex gap-3 mt-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsEditing(false)}
+                                            className="flex-1 rounded-lg bg-gray-100 py-2 font-medium text-gray-700 hover:bg-gray-200"
+                                        >
+                                            Batal
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={updateLoading}
+                                            className="flex-1 rounded-lg bg-primary py-2 font-bold text-white hover:bg-primary-dark disabled:opacity-70"
+                                        >
+                                            {updateLoading ? "Menyimpan..." : "Simpan"}
+                                        </button>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
 
                 {/* Order History */}
                 <motion.div

@@ -172,7 +172,21 @@ export default function ProductsPage() {
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100">
-                                            <Image src={product.image} alt={product.name} fill className="object-cover" />
+                                            {product.image ? (
+                                                <img
+                                                    src={product.image}
+                                                    alt={product.name}
+                                                    className="h-full w-full object-cover"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = "https://placehold.co/100x100?text=No+Image";
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs text-gray-500">
+                                                    No Img
+                                                </div>
+                                            )}
                                         </div>
                                         <div>
                                             <div className="font-medium text-gray-900">{product.name}</div>
