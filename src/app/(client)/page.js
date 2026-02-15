@@ -1,15 +1,43 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import Image from "next/image";
-import ProductCard from "@/components/ProductCard";
-import SearchFilter from "@/components/SearchFilter";
-import ProductModal from "@/components/ProductModal";
 import { supabase } from "@/lib/supabase";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import ProductCard from "@/components/ProductCard";
+import ProductModal from "@/components/ProductModal";
 
 const CATEGORIES = ["Semua", "Mentai", "Kukus", "Goreng", "Frozen", "Minuman", "Cimol"];
 
+
+const LOCATIONS = [
+    {
+        id: 0,
+        title: "Kantor Pusat",
+        address: "Jl. Cibaligo Cluster Pintu Air Kavling No. 03",
+        time: "10:00 - 19:00 WIB",
+        map: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31686.04997575213!2d107.55205045465941!3d-6.919717096382213!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5daa8471cbf%3A0x673b0abcb7153ab!2sSentra%20Dimsum%20Cimahi%20(%20Pusat%20)!5e0!3m2!1sid!2sid!4v1769713096009!5m2!1sid!2sid",
+        theme: "bg-white text-slate-900 border-slate-200",
+        tag: "Production Hub"
+    },
+    {
+        id: 1,
+        title: "Cabang Melong",
+        address: "Jl. Melong 3 No.30, Melong, Cimahi Selatan",
+        time: "10:00 - 19:00 WIB",
+        map: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.724770055309!2d107.5584244749966!3d-6.923467993076258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5003cfebfc3%3A0x7d8c6b11490c9bf8!2sSentra%20Dimsum%20Cimahi%203!5e0!3m2!1sid!2sid!4v1769711917409!5m2!1sid!2sid",
+        theme: "bg-orange-500 text-white border-orange-400",
+        tag: "Kitchen Branch"
+    },
+    {
+        id: 2,
+        title: "Cabang Cibaligo",
+        address: "Jl. Cigugur Tengah No.13, Cigugur Tengah, Cimahi Tengah",
+        time: "10:00 - 19:00 WIB",
+        map: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.928551898608!2d107.55321771160152!3d-6.899148693071311!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5288e9df909%3A0x1825d20010709361!2sSentra%20Dimsum%20Cimahi%202!5e0!3m2!1sid!2sid!4v1769711951166!5m2!1sid!2sid",
+        theme: "bg-[#111] text-white border-[#222]",
+        tag: "Quick Service"
+    }
+];
 export default function Home() {
     const [activeCategory, setActiveCategory] = useState("Semua");
     const [searchQuery, setSearchQuery] = useState("");
@@ -17,213 +45,201 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
+    const { scrollYProgress } = useScroll();
+    const yHero = useTransform(scrollYProgress, [0, 0.2], [0, 150]);
+    const opacityHero = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+
     useEffect(() => {
         async function fetchProducts() {
             setLoading(true);
             const { data, error } = await supabase.from("products").select("*");
-            if (error) {
-                console.error("Error fetching products:", error);
-            } else {
-                setProducts(data || []);
-            }
+            if (error) console.error("Error fetching products:", error);
+            else setProducts(data || []);
             setLoading(false);
         }
-
         fetchProducts();
     }, []);
 
     const filteredProducts = useMemo(() => {
-        return products.filter((product) => {
-            const matchesCategory =
-                activeCategory === "Semua" || product.category === activeCategory;
-            const matchesSearch = product.name
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase());
+        return products.filter((p) => {
+            const matchesCategory = activeCategory === "Semua" || p.category === activeCategory;
+            const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         });
     }, [activeCategory, searchQuery, products]);
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20">
-            {/* Hero Section */}
-            <section className="relative h-[300px] w-full overflow-hidden bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 px-4 text-center text-white sm:h-[400px]">
-                <div className="absolute inset-0 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
-                <div className="absolute inset-0 overflow-hidden">
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 90, 0],
-                            opacity: [0.4, 0.6, 0.4]
-                        }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="absolute -top-1/2 -left-1/2 h-[800px] w-[800px] rounded-full bg-white/20 blur-3xl"
-                    />
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.5, 1],
-                            x: [0, 100, 0],
-                            opacity: [0.3, 0.5, 0.3]
-                        }}
-                        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute -bottom-1/2 -right-1/2 h-[600px] w-[600px] rounded-full bg-yellow-300/20 blur-3xl"
-                    />
-                </div>
+        <div className="min-h-screen bg-[#FDFCF9] text-slate-900 selection:bg-orange-500 selection:text-white font-sans">
 
-                <div className="relative z-10 flex h-full flex-col items-center justify-center">
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-4 text-4xl font-extrabold tracking-tight sm:text-6xl drop-shadow-md"
-                    >
-                        Sentra Dimsum Cimahi
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="max-w-xl text-lg font-medium text-white/95 sm:text-xl drop-shadow-sm"
-                    >
-                        Nikmati kelezatan dimsum premium dengan harga terjangkau. Halal,
-                        enak, dan bikin nagih!
-                    </motion.p>
-                </div>
-            </section>
+            {/* 1. HERO SECTION (Premium Editorial) */}
+            <section className="relative h-[90svh] flex items-center justify-center overflow-hidden bg-[#0a0a0a] rounded-b-[2.5rem] md:rounded-b-[4rem] lg:rounded-b-[5rem] shadow-2xl">
+                <motion.div style={{ y: yHero, opacity: opacityHero }} className="container mx-auto px-4 z-10 text-center w-full">
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+                        <p className="text-orange-500 font-bold tracking-[0.3em] md:tracking-[0.4em] uppercase text-[10px] md:text-xs mb-6 md:mb-8">
+                            Premium Taste • Halal
+                        </p>
+                        <h1 className="text-[16vw] sm:text-[14vw] md:text-[11vw] font-black leading-[0.8] tracking-tighter text-white flex flex-col items-center justify-center">
+                            <span>SENTRA</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 italic mt-2">DIMSUM</span>
+                        </h1>
 
-            {/* Search & Filter Section */}
-            <section className="sticky top-[70px] z-40 bg-white/80 px-4 py-4 backdrop-blur-md shadow-sm">
-                <div className="container mx-auto max-w-6xl">
-                    <SearchFilter
-                        categories={CATEGORIES}
-                        selectedCategory={activeCategory}
-                        onCategoryChange={setActiveCategory}
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                    />
-                </div>
-            </section>
-
-            {/* Product Grid */}
-            <section className="container mx-auto max-w-6xl px-4 py-8">
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                        <p className="mt-4 text-text-secondary animate-pulse">Memuat menu lezat...</p>
-                    </div>
-                ) : (
-                    <motion.div
-                        layout
-                        className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    >
-                        <AnimatePresence mode="popLayout">
-                            {filteredProducts.length > 0 ? (
-                                filteredProducts.map((product) => (
-                                    <ProductCard
-                                        key={product.id}
-                                        product={product}
-                                        onSelect={setSelectedProduct}
-                                    />
-                                ))
-                            ) : (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="col-span-full flex flex-col items-center justify-center py-12 text-center text-text-secondary"
-                                >
-                                    <div className="rounded-full bg-gray-100 p-4 mb-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-focus-within:text-primary transition-colors"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-                                    </div>
-                                    <p className="text-lg font-medium">Menu tidak ditemukan</p>
-                                    <p>Coba kata kunci lain atau pilih kategori berbeda.</p>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <div className="mt-12 md:mt-16 flex items-center justify-center">
+                            <button
+                                onClick={() => document.getElementById('menu').scrollIntoView({ behavior: 'smooth' })}
+                                className="px-8 py-3.5 md:px-10 md:py-4 bg-white text-slate-900 text-[10px] md:text-xs font-black uppercase tracking-widest rounded-full hover:bg-orange-500 hover:text-white transition-all shadow-xl hover:shadow-orange-500/25 active:scale-95"
+                            >
+                                Jelajahi Menu
+                            </button>
+                        </div>
                     </motion.div>
-                )}
+                </motion.div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-900/30 via-transparent to-transparent opacity-80"></div>
             </section>
 
-            {/* Locations Section */}
-            <section className="bg-white py-16">
-                <div className="container mx-auto max-w-6xl px-4">
-                    <div className="mb-12 text-center">
-                        <h2 className="text-3xl font-bold text-gray-900">Lokasi Kami</h2>
-                        <p className="mt-2 text-text-secondary">Kunjungi cabang terdekat kami di Daerah Anda</p>
+            {/* 2. MENU SECTION */}
+            <section id="menu" className="relative pt-12 md:pt-20 pb-24 md:pb-32 px-4 sm:px-6">
+                <div className="container mx-auto max-w-7xl">
+
+                    {/* NEW: Floating Category & Search Bar */}
+                    <div className="sticky top-4 md:top-6 z-40 mb-12 md:mb-20">
+                        <motion.div
+                            className="bg-white/80 backdrop-blur-xl p-4 md:p-5 rounded-[2rem] border border-slate-200/60 shadow-[0_10px_40px_rgba(0,0,0,0.04)] flex flex-col gap-4"
+                        >
+                            {/* Search Input */}
+                            <div className="relative w-full">
+                                <input
+                                    type="text"
+                                    placeholder="Cari menu dimsum favoritmu..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full bg-slate-50/50 border border-slate-200 rounded-full px-5 py-3.5 pl-12 text-sm font-medium text-slate-900 outline-none transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 focus:bg-white"
+                                />
+                                <span className="absolute left-4 top-3.5 text-lg grayscale opacity-60">🔍</span>
+                            </div>
+
+                            {/* Horizontal Scrollable Categories */}
+                            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide snap-x">
+                                {CATEGORIES.map((cat) => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setActiveCategory(cat)}
+                                        className={`snap-center shrink-0 px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeCategory === cat
+                                            ? 'bg-slate-900 text-white shadow-md scale-100'
+                                            : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 scale-95 hover:scale-100'
+                                            }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                        </motion.div>
                     </div>
 
-                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 justify-center">
-                        {/* Cabang 1: Cimahi (Pusat) */}
-                        <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
-                            <div className="relative h-48 w-full">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31686.04997575213!2d107.55205045465941!3d-6.919717096382213!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5daa8471cbf%3A0x673b0abcb7153ab!2sSentra%20Dimsum%20Cimahi%20(%20Pusat%20)!5e0!3m2!1sid!2sid!4v1769713096009!5m2!1sid!2sid"
-                                    width="100%"
-                                    height="100%"
-                                    style={{ border: 0 }}
-                                    allowFullScreen=""
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                ></iframe>
-                            </div>
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold text-primary">Kantor Sentra Dimsum Cimahi (Pusat)</h3>
-                                <p className="mt-2 text-sm text-gray-600">Jl. Cibaligo Cluster Pintu Air Kavling No. 03, Cigugur Tengah</p>
-                                <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 19:00 WIB</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 md:mb-12 gap-4 px-2">
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase leading-none text-slate-900">
+                            {activeCategory}
+                        </h2>
+                        <p className="text-slate-400 font-bold text-[10px] md:text-xs uppercase tracking-widest bg-slate-100 px-4 py-2 rounded-full">
+                            {filteredProducts.length} Items
+                        </p>
+                    </div>
 
-                        {/* Cabang 2: Melong */}
-                        <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
-                            <div className="relative h-48 w-full">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.724770055309!2d107.5584244749966!3d-6.923467993076258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5003cfebfc3%3A0x7d8c6b11490c9bf8!2sSentra%20Dimsum%20Cimahi%203!5e0!3m2!1sid!2sid!4v1769711917409!5m2!1sid!2sid"
-                                    width="100%"
-                                    height="100%"
-                                    style={{ border: 0 }}
-                                    allowFullScreen=""
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                ></iframe>
-                            </div>
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold text-primary">Cabang Melong</h3>
-                                <p className="mt-2 text-sm text-gray-600">Jl. Melong 3 No.30, Melong, Kec. Cimahi Sel., Kota Cimahi</p>
-                                <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 19:00 WIB</span>
-                                </div>
-                            </div>
+                    {/* Grid Produk */}
+                    {loading ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+                            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                                <div key={i} className="aspect-[4/5] bg-slate-200/50 rounded-[2rem] animate-pulse border border-slate-100" />
+                            ))}
                         </div>
+                    ) : (
+                        <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-16">
+                            <AnimatePresence mode="popLayout">
+                                {filteredProducts.map((product, idx) => (
+                                    <motion.div
+                                        key={product.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: (idx % 4) * 0.05 }}
+                                        viewport={{ once: true, margin: "-50px" }}
+                                    >
+                                        <ProductCard product={product} onSelect={setSelectedProduct} />
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
 
-                        {/* Cabang 3: Cibaligo */}
-                        <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
-                            <div className="relative h-48 w-full">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.928551898608!2d107.55321771160152!3d-6.899148693071311!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5288e9df909%3A0x1825d20010709361!2sSentra%20Dimsum%20Cimahi%202!5e0!3m2!1sid!2sid!4v1769711951166!5m2!1sid!2sid"
-                                    width="100%"
-                                    height="100%"
-                                    style={{ border: 0 }}
-                                    allowFullScreen=""
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                ></iframe>
+                    {!loading && filteredProducts.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-32 md:py-40 px-4 text-center">
+                            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+                                <span className="text-4xl grayscale opacity-50">🥟</span>
                             </div>
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold text-primary">Cabang Cibaligo</h3>
-                                <p className="mt-2 text-sm text-gray-600">Jl. Cigugur Tengah No.13, Cigugur Tengah, Cimahi Tengah</p>
-                                <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 19:00 WIB</span>
-                                </div>
-                            </div>
+                            <p className="text-2xl md:text-3xl font-black text-slate-400 uppercase tracking-widest">Menu Tidak Ditemukan</p>
+                            <p className="text-slate-400 mt-3 font-medium text-sm">Coba gunakan kata kunci atau kategori lain.</p>
                         </div>
+                    )}
+                </div>
+            </section>
+
+            {/* 3. LOCATION SECTION (The Bento) */}
+            <section className="bg-slate-100 py-20 md:py-32 rounded-[2.5rem] md:rounded-[4rem] lg:rounded-[5rem] mx-4 sm:mx-6 my-12 md:my-20">
+                <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+                    <div className="flex flex-col lg:flex-row justify-between lg:items-end mb-12 md:mb-20 gap-6 lg:gap-8">
+                        <h2 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.9] uppercase">
+                            Kunjungi <br /> <span className="text-orange-500 italic">Outlet Kami.</span>
+                        </h2>
+                        <p className="text-slate-500 font-medium max-w-xs text-sm md:text-base lg:text-right">
+                            Datang langsung untuk mendapatkan rasa dan pengalaman yang paling fresh.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                        {LOCATIONS.map((loc) => (
+                            <motion.div
+                                key={loc.id}
+                                whileHover={{ y: -5 }}
+                                className={`rounded-[2rem] md:rounded-[2.5rem] p-6 sm:p-8 flex flex-col shadow-sm border ${loc.theme} ${loc.gridSpan}`}
+                            >
+                                <div className="mb-6">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60 block">
+                                            {loc.tag}
+                                        </span>
+                                        <span className={`text-[10px] font-bold opacity-80 px-2.5 py-1 rounded-md ${loc.id === 0 ? 'bg-black/5' : 'bg-white/10'}`}>
+                                            {loc.time}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-3xl md:text-4xl font-black uppercase italic leading-none mb-3">
+                                        {loc.title}
+                                    </h3>
+                                    <p className="text-sm opacity-80 leading-relaxed max-w-md font-medium">
+                                        {loc.address}
+                                    </p>
+                                </div>
+                                <div className="mt-auto h-48 sm:h-64 rounded-2xl md:rounded-[1.5rem] overflow-hidden bg-black/5 border border-white/10 relative">
+                                    <iframe
+                                        src={loc.map}
+                                        className={`absolute inset-0 w-full h-full border-0 transition-all duration-700 ${loc.id === 2 ? 'grayscale invert opacity-50 hover:opacity-100 hover:grayscale-0' : 'grayscale hover:grayscale-0'}`}
+                                        loading="lazy"
+                                        allowFullScreen
+                                    />
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* Product Modal */}
+            {/* 4. MODAL & FOOTER */}
+            <footer className="py-16 md:py-24 px-4 text-center border-t border-slate-100 overflow-hidden">
+                <h2 className="text-[15vw] md:text-[12vw] font-black text-slate-100 leading-none select-none tracking-tighter">
+                    SENTRA
+                </h2>
+                <p className="text-slate-400 font-bold tracking-[0.2em] md:tracking-[0.4em] text-[8px] md:text-[10px] uppercase mt-4 md:mt-2">
+                    Premium Dimsum Experience Cimahi
+                </p>
+            </footer>
+
             <ProductModal
                 product={selectedProduct}
                 isOpen={!!selectedProduct}
