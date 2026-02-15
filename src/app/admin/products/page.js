@@ -81,21 +81,24 @@ export default function ProductsPage() {
 
     const uploadImage = async (file) => {
         try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
-            const filePath = `${fileName}`;
+            const formData = new FormData();
+            formData.append("file", file);
 
-            const { error: uploadError } = await supabase.storage
-                .from('products') // Make sure this bucket exists
-                .upload(filePath, file);
+            const response = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+            });
 
-            if (uploadError) throw uploadError;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Upload failed");
+            }
 
-            const { data } = supabase.storage.from('products').getPublicUrl(filePath);
-            return data.publicUrl;
+            const data = await response.json();
+            return data.url;
         } catch (error) {
-            console.error('Error uploading image:', error);
-            alert('Gagal upload gambar!');
+            console.error("Error uploading image:", error);
+            alert(`Gagal upload gambar! Error: ${error.message}`);
             return null;
         }
     };
