@@ -68,7 +68,7 @@ export default function CartDrawer() {
             const now = new Date();
             const jakartaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
             const hour = jakartaTime.getHours();
-            setIsShopClosed(hour >= 20 || hour < 10);
+            setIsShopClosed(hour >= 19 || hour < 10);
         };
 
         checkTime();
@@ -202,7 +202,7 @@ export default function CartDrawer() {
 
     const handleCheckout = async () => {
         if (isShopClosed) {
-            alert("Mohon maaf, pemesanan sudah ditutup (Tutup pukul 20:00 WIB). Silahkan datang lagi besok!");
+            alert("Mohon maaf, pemesanan sudah ditutup (Tutup pukul 19:00 WIB). Silahkan datang lagi besok!");
             return;
         }
         if (!customerData.name || !customerData.phone) {
@@ -274,7 +274,7 @@ export default function CartDrawer() {
 
     const handlePayment = async () => {
         if (isShopClosed) {
-            alert("Mohon maaf, pemesanan sudah ditutup (Tutup pukul 20:00 WIB).");
+            alert("Mohon maaf, pemesanan sudah ditutup (Tutup pukul 19:00 WIB).");
             return;
         }
         if (!customerData.name || !customerData.phone) {
@@ -696,7 +696,7 @@ export default function CartDrawer() {
                         {isShopClosed && (
                             <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 mx-6 text-center">
                                 <p className="font-bold text-red-800">Toko Tutup</p>
-                                <p className="text-sm text-red-600">Pemesanan ditutup. Buka pukul 10:00 - 20:00 WIB.</p>
+                                <p className="text-sm text-red-600">Pemesanan ditutup. Buka pukul 10:00 - 19:00 WIB.</p>
                             </div>
                         )}
                     </div>

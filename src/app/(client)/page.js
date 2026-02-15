@@ -150,7 +150,7 @@ export default function Home() {
                         <p className="mt-2 text-text-secondary">Kunjungi cabang terdekat kami di Daerah Anda</p>
                     </div>
 
-                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 justify-center">
                         {/* Cabang 1: Cimahi (Pusat) */}
                         <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
                             <div className="relative h-48 w-full">
@@ -169,7 +169,7 @@ export default function Home() {
                                 <p className="mt-2 text-sm text-gray-600">Jl. Cibaligo Cluster Pintu Air Kavling No. 03, Cigugur Tengah</p>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 20:00 WIB</span>
+                                    <span>10:00 - 19:00 WIB</span>
                                 </div>
                             </div>
                         </div>
@@ -192,7 +192,7 @@ export default function Home() {
                                 <p className="mt-2 text-sm text-gray-600">Jl. Melong 3 No.30, Melong, Kec. Cimahi Sel., Kota Cimahi</p>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 20:00 WIB</span>
+                                    <span>10:00 - 19:00 WIB</span>
                                 </div>
                             </div>
                         </div>
@@ -215,30 +215,7 @@ export default function Home() {
                                 <p className="mt-2 text-sm text-gray-600">Jl. Cigugur Tengah No.13, Cigugur Tengah, Cimahi Tengah</p>
                                 <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 20:00 WIB</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Cabang 4: Cimahi Utara (Cibabat) */}
-                        <div className="overflow-hidden rounded-2xl bg-gray-50 shadow-lg border border-gray-100">
-                            <div className="relative h-48 w-full">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63378.38489543486!2d107.47866134863283!3d-6.872737299999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e5006744d193%3A0x609f056dfbcdb69d!2sSentra%20Dimsum%20Cimahi%204!5e0!3m2!1sid!2sid!4v1769711886942!5m2!1sid!2sid"
-                                    width="100%"
-                                    height="100%"
-                                    style={{ border: 0 }}
-                                    allowFullScreen=""
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                ></iframe>
-                            </div>
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold text-primary">Cabang Cimahi Utara</h3>
-                                <p className="mt-2 text-sm text-gray-600">Jl. Raden Demang Hardjakusumah No.2, Cibabat, Cimahi Utara</p>
-                                <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                    <span>10:00 - 20:00 WIB</span>
+                                    <span>10:00 - 19:00 WIB</span>
                                 </div>
                             </div>
                         </div>

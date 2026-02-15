@@ -15,9 +15,9 @@ export async function POST(request) {
         const jakartaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" }));
         const currentHour = jakartaTime.getHours();
 
-        if (currentHour >= 20 || currentHour < 10) {
+        if (currentHour >= 19 || currentHour < 10) {
             return NextResponse.json(
-                { error: "Mohon maaf, pemesanan sudah ditutup. Kami buka pukul 10:00 - 20:00 WIB." },
+                { error: "Mohon maaf, pemesanan sudah ditutup. Kami buka pukul 10:00 - 19:00 WIB." },
                 { status: 400 }
             );
         }

@@ -21,6 +21,7 @@ export default function ProductsPage() {
         image: "",
         is_popular: false,
     });
+    const [imageFile, setImageFile] = useState(null);
 
     useEffect(() => {
         fetchProducts();
@@ -48,6 +49,7 @@ export default function ProductsPage() {
             image: product.image,
             is_popular: product.is_popular || false,
         });
+        setImageFile(null);
         setIsEditing(true);
     };
 
@@ -62,6 +64,7 @@ export default function ProductsPage() {
             image: "",
             is_popular: false,
         });
+        setImageFile(null);
         setIsEditing(true);
     };
 
@@ -76,10 +79,45 @@ export default function ProductsPage() {
         }
     };
 
+    const uploadImage = async (file) => {
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('products') // Make sure this bucket exists
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage.from('products').getPublicUrl(filePath);
+            return data.publicUrl;
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Gagal upload gambar!');
+            return null;
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+
+        let imageUrl = formData.image;
+        if (imageFile) {
+            const uploadedUrl = await uploadImage(imageFile);
+            if (uploadedUrl) {
+                imageUrl = uploadedUrl;
+            } else {
+                setLoading(false);
+                return;
+            }
+        }
+
         const payload = {
             ...formData,
+            image: imageUrl,
             price: parseInt(formData.price),
             stock: parseInt(formData.stock),
         };
@@ -239,14 +277,44 @@ export default function ProductsPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">URL Gambar</label>
-                                    <input
-                                        type="url"
-                                        value={formData.image}
-                                        onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                        className="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-primary"
-                                        required
-                                    />
+                                    <label className="block text-sm font-medium text-gray-700">Gambar Produk</label>
+                                    <div className="mt-1 flex items-center gap-4">
+                                        <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-300 bg-gray-50">
+                                            {(imageFile || formData.image) ? (
+                                                <Image
+                                                    src={imageFile ? URL.createObjectURL(imageFile) : formData.image}
+                                                    alt="Preview"
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                                                    No Image
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) setImageFile(file);
+                                                }}
+                                                className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-primary hover:file:bg-primary/20"
+                                            />
+                                            <p className="mt-1 text-xs text-gray-500">
+                                                Atau gunakan URL (opsional):
+                                            </p>
+                                            <input
+                                                type="url"
+                                                value={formData.image}
+                                                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                                                className="mt-1 w-full rounded-md border border-gray-300 p-1 text-sm outline-none focus:border-primary"
+                                                placeholder="https://..."
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <input
@@ -269,9 +337,10 @@ export default function ProductsPage() {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex-1 rounded-lg bg-primary py-2 font-bold text-white hover:bg-primary-dark"
+                                        disabled={loading}
+                                        className="flex-1 rounded-lg bg-primary py-2 font-bold text-white hover:bg-primary-dark disabled:opacity-70"
                                     >
-                                        Simpan
+                                        {loading ? "Menyimpan..." : "Simpan"}
                                     </button>
                                 </div>
                             </form>
