@@ -96,14 +96,32 @@ export default function Home() {
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-900/30 via-transparent to-transparent opacity-80"></div>
             </section>
 
-            {/* 2. MENU SECTION */}
-            <section id="menu" className="relative pt-12 md:pt-20 pb-24 md:pb-32 px-4 sm:px-6">
-                <div className="container mx-auto max-w-7xl">
+            {/* 2. MENU SECTION (Aesthetic Mesh Gradient Background) */}
+            <section id="menu" className="relative pt-12 md:pt-20 pb-24 md:pb-32 px-4 sm:px-6 z-10 overflow-hidden">
 
-                    {/* NEW: Floating Category & Search Bar */}
+                {/* --- BACKGROUND ESTETIK (Kelihatan & Elegan) --- */}
+                {/* Base color: Bukan putih, tapi perpaduan Cream, Beige, dan Soft Orange */}
+                <div className="absolute inset-0 -z-20 bg-gradient-to-br from-[#FDFBF7] via-[#F3EFE6] to-[#EBE5D8]"></div>
+
+                {/* Blur Blobs / Mesh Gradient */}
+                <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden opacity-60">
+                    {/* Bola warna Oranye Hangat di Kiri Atas */}
+                    <div className="absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] bg-orange-200/60 rounded-full mix-blend-multiply filter blur-[120px]"></div>
+
+                    {/* Bola warna Kuning/Amber di Kanan Tengah */}
+                    <div className="absolute top-[20%] -right-[10%] w-[60vw] h-[60vw] bg-amber-100/70 rounded-full mix-blend-multiply filter blur-[100px]"></div>
+
+                    {/* Bola warna Sand/Batu di Kiri Bawah */}
+                    <div className="absolute -bottom-[10%] left-[10%] w-[70vw] h-[50vw] bg-stone-200/80 rounded-full mix-blend-multiply filter blur-[120px]"></div>
+                </div>
+                {/* ----------------------------------------------- */}
+
+                <div className="container mx-auto max-w-7xl relative">
+
+                    {/* Floating Category & Search Bar - Glassmorphism */}
                     <div className="sticky top-4 md:top-6 z-40 mb-12 md:mb-20">
                         <motion.div
-                            className="bg-white/80 backdrop-blur-xl p-4 md:p-5 rounded-[2rem] border border-slate-200/60 shadow-[0_10px_40px_rgba(0,0,0,0.04)] flex flex-col gap-4"
+                            className="bg-white/60 backdrop-blur-2xl p-4 md:p-5 rounded-[2rem] border border-white/80 shadow-[0_10px_40px_rgba(0,0,0,0.06)] flex flex-col gap-4"
                         >
                             {/* Search Input */}
                             <div className="relative w-full">
@@ -112,9 +130,9 @@ export default function Home() {
                                     placeholder="Cari menu dimsum favoritmu..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full bg-slate-50/50 border border-slate-200 rounded-full px-5 py-3.5 pl-12 text-sm font-medium text-slate-900 outline-none transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 focus:bg-white"
+                                    className="w-full bg-white/80 border border-slate-200 rounded-full px-5 py-3.5 pl-12 text-sm font-medium text-slate-900 outline-none transition-all focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 focus:bg-white shadow-inner placeholder:text-slate-400"
                                 />
-                                <span className="absolute left-4 top-3.5 text-lg grayscale opacity-60">🔍</span>
+                                <span className="absolute left-4 top-3.5 text-lg grayscale opacity-40">🔍</span>
                             </div>
 
                             {/* Horizontal Scrollable Categories */}
@@ -124,8 +142,8 @@ export default function Home() {
                                         key={cat}
                                         onClick={() => setActiveCategory(cat)}
                                         className={`snap-center shrink-0 px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeCategory === cat
-                                            ? 'bg-slate-900 text-white shadow-md scale-100'
-                                            : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 scale-95 hover:scale-100'
+                                                ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 scale-100'
+                                                : 'bg-white/50 text-slate-600 border border-white hover:bg-white hover:text-slate-900 hover:shadow-sm scale-95 hover:scale-100'
                                             }`}
                                     >
                                         {cat}
@@ -135,20 +153,24 @@ export default function Home() {
                         </motion.div>
                     </div>
 
+                    {/* Judul Kategori */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 md:mb-12 gap-4 px-2">
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase leading-none text-slate-900">
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black italic tracking-tighter uppercase leading-none text-slate-900 drop-shadow-sm">
                             {activeCategory}
                         </h2>
-                        <p className="text-slate-400 font-bold text-[10px] md:text-xs uppercase tracking-widest bg-slate-100 px-4 py-2 rounded-full">
-                            {filteredProducts.length} Items
-                        </p>
+                        <div className="flex items-center gap-3">
+                            <span className="w-8 h-[2px] bg-orange-400/50 hidden md:block"></span>
+                            <p className="text-slate-500 font-bold text-[10px] md:text-xs uppercase tracking-widest bg-white/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/60">
+                                {filteredProducts.length} Items
+                            </p>
+                        </div>
                     </div>
 
                     {/* Grid Produk */}
                     {loading ? (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
                             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                                <div key={i} className="aspect-[4/5] bg-slate-200/50 rounded-[2rem] animate-pulse border border-slate-100" />
+                                <div key={i} className="aspect-[4/5] bg-white/40 rounded-[2rem] animate-pulse border border-white/50" />
                             ))}
                         </div>
                     ) : (
@@ -169,18 +191,18 @@ export default function Home() {
                         </motion.div>
                     )}
 
+                    {/* State Kosong */}
                     {!loading && filteredProducts.length === 0 && (
                         <div className="flex flex-col items-center justify-center py-32 md:py-40 px-4 text-center">
-                            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6">
-                                <span className="text-4xl grayscale opacity-50">🥟</span>
+                            <div className="w-24 h-24 bg-white/50 backdrop-blur-md border border-white rounded-full flex items-center justify-center mb-6 shadow-sm">
+                                <span className="text-4xl grayscale opacity-40">🥟</span>
                             </div>
                             <p className="text-2xl md:text-3xl font-black text-slate-400 uppercase tracking-widest">Menu Tidak Ditemukan</p>
-                            <p className="text-slate-400 mt-3 font-medium text-sm">Coba gunakan kata kunci atau kategori lain.</p>
+                            <p className="text-slate-500 mt-3 font-medium text-sm">Coba gunakan kata kunci atau kategori lain.</p>
                         </div>
                     )}
                 </div>
             </section>
-
             {/* 3. LOCATION SECTION (The Bento) */}
             <section className="bg-slate-100 py-20 md:py-32 rounded-[2.5rem] md:rounded-[4rem] lg:rounded-[5rem] mx-4 sm:mx-6 my-12 md:my-20">
                 <div className="container mx-auto max-w-7xl px-4 sm:px-6">
