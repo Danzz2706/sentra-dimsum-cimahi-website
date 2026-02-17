@@ -76,11 +76,214 @@ export default function OrdersPage() {
         }
     };
 
-    // Fungsi handleExport, handlePrintReport, dan handlePrintReceipt TETAP SAMA seperti aslinya
-    // (Dipersingkat di sini agar fokus pada UI, pastikan Anda menggunakan fungsi aslinya)
-    const handleExport = () => { /* ... (Gunakan kode asli Anda) ... */ };
-    const handlePrintReport = () => { /* ... (Gunakan kode asli Anda) ... */ };
-    const handlePrintReceipt = (order) => { /* ... (Gunakan kode asli Anda) ... */ };
+    const handlePrintReport = () => {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return alert("Please allow popups to print report");
+
+        const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const totalSales = filteredOrders.length;
+        const totalRevenue = filteredOrders.reduce((acc, order) => acc + (order.total_price || 0), 0);
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Laporan Penjualan - Sentra Dimsum</title>
+                <style>
+                    body { font-family: 'Segoe UI', sans-serif; padding: 40px; color: #333; }
+                    .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; }
+                    .logo { width: 80px; height: auto; }
+                    .company-info { text-align: left; }
+                    .company-name { font-size: 24px; font-weight: bold; margin: 0; color: #000; }
+                    .report-title { font-size: 18px; margin: 5px 0 0; font-weight: 600; }
+                    .summary { display: flex; gap: 40px; margin-bottom: 30px; background: #f9fafb; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; }
+                    .summary-item strong { display: block; font-size: 24px; color: #111; }
+                    .summary-item span { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+                    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 20px; }
+                    th { background: #f3f4f6; padding: 12px; text-align: left; border-bottom: 2px solid #000; font-weight: bold; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+                    td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+                    tr:nth-child(even) { background-color: #fafafa; }
+                    .text-right { text-align: right; }
+                    .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+                    .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 20px; }
+                    @media print { .no-print { display: none; } body { padding: 0; } }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <img src="/logo.jpeg" class="logo" alt="Logo" />
+                    <div class="company-info">
+                        <h1 class="company-name">SENTRA DIMSUM CIMAHI</h1>
+                        <p class="report-title">LAPORAN PENJUALAN</p>
+                        <p style="font-size: 12px; color: #666;">Digenerate pada: ${today}</p>
+                    </div>
+                </div>
+                
+                <div class="summary">
+                    <div class="summary-item">
+                        <span>Total Pesanan</span>
+                        <strong>${totalSales}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Total Pendapatan</span>
+                        <strong>${formatPrice(totalRevenue)}</strong>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Pelanggan</th>
+                            <th>Tipe</th>
+                            <th>Status</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredOrders.map((order, index) => `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>
+                                    ${new Date(order.created_at).toLocaleDateString('id-ID')}
+                                    <div style="font-size: 10px; color: #999;">${new Date(order.created_at).toLocaleTimeString('id-ID')}</div>
+                                </td>
+                                <td>
+                                    <strong>${order.customer_name}</strong>
+                                    <div style="font-size: 10px; color: #666;">${order.customer_phone}</div>
+                                </td>
+                                <td>${order.order_type === 'delivery' ? 'Delivery' : 'Pickup'}</td>
+                                <td>${order.status}</td>
+                                <td class="text-right"><strong>${formatPrice(order.total_price)}</strong></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div class="footer"><p>Laporan ini digenerate otomatis oleh sistem Sentra Dimsum Cimahi.</p></div>
+                <script>window.onload = function() { window.print(); }</script>
+            </body>
+            </html>
+        `;
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+    };
+
+    const handleExport = () => {
+        const headers = ["Order ID", "Tanggal", "Nama Pelanggan", "No HP", "Alamat", "Tipe Order", "Status", "Items", "Total Harga"];
+        const csvContent = [
+            headers.join(","),
+            ...filteredOrders.map(order => {
+                const itemsRequest = order.items.map(i => `${i.quantity}x ${i.name}`).join(" | ");
+                return [
+                    order.id,
+                    new Date(order.created_at).toLocaleString('id-ID'),
+                    `"${order.customer_name}"`,
+                    `"${order.customer_phone}"`,
+                    `"${order.customer_address ? order.customer_address.replace(/"/g, '""') : '-'}"`,
+                    order.order_type,
+                    order.status,
+                    `"${itemsRequest.replace(/"/g, '""')}"`,
+                    order.total_price
+                ].join(",");
+            })
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `laporan_penjualan_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handlePrintReceipt = (order) => {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return alert("Please allow popups to print receipt");
+
+        const date = new Date(order.created_at).toLocaleString('id-ID');
+        const total = formatPrice(order.total_price);
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Struk #${order.id.slice(0, 8)}</title>
+                <style>
+                    body { font-family: 'Courier New', monospace; padding: 10px; width: 300px; margin: 0 auto; color: #000; position: relative; }
+                    .watermark {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 60%;
+                        opacity: 0.08;
+                        z-index: -1;
+                        pointer-events: none;
+                        filter: grayscale(100%);
+                    }
+                    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #000; padding-bottom: 10px; }
+                    .store-name { font-size: 16px; font-weight: bold; margin: 0; text-transform: uppercase; }
+                    .store-address { font-size: 10px; margin: 5px 0; line-height: 1.4; }
+                    .meta { font-size: 10px; margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+                    .meta p { margin: 2px 0; display: flex; justify-content: space-between; }
+                    .item-list { width: 100%; font-size: 11px; border-collapse: collapse; margin-bottom: 10px; }
+                    .item-list td { padding: 4px 0; vertical-align: top; }
+                    .qty { width: 25px; font-weight: bold; }
+                    .price { text-align: right; }
+                    .total-section { border-top: 2px dashed #000; padding-top: 10px; margin-top: 10px; }
+                    .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+                    .sub-row { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px; }
+                    .footer { text-align: center; font-size: 10px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+                    @media print { @page { margin: 0; } body { padding: 5px; } }
+                </style>
+            </head>
+            <body>
+                <img src="/logo.jpeg" class="watermark" alt="Watermark" />
+                <div class="header">
+                    <h1 class="store-name">SENTRA DIMSUM CIMAHI</h1>
+                    <p class="store-address">Jl. Cibaligo Cluster Pintu Air Kavling No. 03<br>Cimahi, Jawa Barat</p>
+                </div>
+                <div class="meta">
+                    <p><span>ID Order:</span> <span>#${order.id.slice(0, 8)}</span></p>
+                    <p><span>Tanggal:</span> <span>${date}</span></p>
+                    <p><span>Pelanggan:</span> <span>${order.customer_name}</span></p>
+                    <p><span>Tipe:</span> <span>${order.order_type === 'delivery' ? 'DELIVERY' : 'PICKUP'}</span></p>
+                </div>
+                <table class="item-list">
+                    ${order.items.map(item => `
+                        <tr>
+                            <td class="qty">${item.quantity}x</td>
+                            <td class="name">${item.name}</td>
+                            <td class="price">${formatPrice(item.price * item.quantity)}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>TOTAL</span>
+                        <span>${total}</span>
+                    </div>
+                     <div class="sub-row">
+                        <span>Status Bayar</span>
+                        <span>${order.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>Terima Kasih!</p>
+                    <p>Sentra Dimsum Cimahi</p>
+                </div>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                </script>
+            </body>
+            </html>
+        `;
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+    };
 
     return (
         <div className="space-y-6 pb-10">
