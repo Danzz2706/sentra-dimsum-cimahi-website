@@ -28,97 +28,107 @@ export default function ProductModal({ product, isOpen, onClose }) {
         }).format(price);
     };
 
-    const totalPrice = product.price * quantity;
-
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
                     />
 
-                    {/* Modal Card */}
+                    {/* Modal Card (Split-Screen on Desktop) */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl"
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="relative w-full max-w-4xl overflow-hidden rounded-[2rem] sm:rounded-[3rem] bg-white shadow-2xl flex flex-col md:flex-row z-10 max-h-[90vh]"
                     >
-                        {/* Close Button */}
+                        {/* Close Button (Floating) */}
                         <button
                             onClick={onClose}
-                            className="absolute right-4 top-4 z-10 rounded-full bg-black/20 p-2 text-white backdrop-blur-md transition-colors hover:bg-black/40"
+                            className="absolute right-4 top-4 md:right-6 md:top-6 z-20 rounded-full bg-white/80 p-2 text-slate-900 backdrop-blur-md transition-all hover:bg-slate-100 hover:scale-110 shadow-sm"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                         </button>
 
-                        {/* Image Header */}
-                        <div className="relative h-56 w-full bg-gray-100">
+                        {/* Image Section (Left side on Desktop) */}
+                        <div className="relative h-64 md:h-auto md:w-1/2 bg-slate-100 shrink-0">
                             <Image
                                 src={product.image}
                                 alt={product.name}
                                 fill
                                 className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 50vw"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                            <div className="absolute bottom-4 left-6 right-6">
-                                <h3 className="text-2xl font-bold text-white">{product.name}</h3>
-                                <p className="text-white/90 line-clamp-1">{product.description}</p>
-                            </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent md:hidden" />
                         </div>
 
-                        {/* Content */}
-                        <div className="p-6 space-y-6">
-                            {/* Quantity Control */}
-                            <div className="flex items-center justify-between">
-                                <span className="font-bold text-gray-900">Jumlah Pesanan</span>
-                                <div className="flex items-center gap-4 rounded-full bg-gray-50 p-1 border border-gray-100">
-                                    <button
-                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                        className="h-10 w-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-primary transition-colors font-bold text-lg"
-                                    >
-                                        -
-                                    </button>
-                                    <span className="w-8 text-center font-bold text-lg text-gray-900">{quantity}</span>
-                                    <button
-                                        onClick={() => setQuantity(quantity + 1)}
-                                        className="h-10 w-10 rounded-full bg-primary text-white shadow-md flex items-center justify-center hover:bg-primary-dark transition-colors font-bold text-lg"
-                                    >
-                                        +
-                                    </button>
+                        {/* Content Section (Right side on Desktop) */}
+                        <div className="flex flex-col p-6 sm:p-8 md:p-12 md:w-1/2 overflow-y-auto">
+
+                            <div className="mb-8">
+                                <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-2 block">
+                                    {product.category || "Signature Menu"}
+                                </span>
+                                <h3 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter text-slate-900 leading-none mb-4">
+                                    {product.name}
+                                </h3>
+                                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                                    {product.description}
+                                </p>
+                            </div>
+
+                            <div className="space-y-8 mt-auto">
+                                {/* Quantity Control */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Kuantitas</span>
+                                    <div className="flex items-center gap-4 rounded-full bg-slate-50 p-1 border border-slate-100">
+                                        <button
+                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                            className="h-10 w-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-600 hover:text-orange-500 transition-colors font-bold text-lg active:scale-95"
+                                        >
+                                            -
+                                        </button>
+                                        <span className="w-6 text-center font-bold text-lg text-slate-900">{quantity}</span>
+                                        <button
+                                            onClick={() => setQuantity(quantity + 1)}
+                                            className="h-10 w-10 rounded-full bg-slate-900 text-white shadow-md flex items-center justify-center hover:bg-orange-500 transition-colors font-bold text-lg active:scale-95"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Note Input */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-900">Catatan Khusus</label>
-                                <textarea
-                                    value={note}
-                                    onChange={(e) => setNote(e.target.value)}
-                                    placeholder="Contoh: Pedas, Jangan pakai bawang, dll..."
-                                    className="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                                    rows="3"
-                                />
-                            </div>
+                                {/* Note Input */}
+                                <div>
+                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 block">Catatan Tambahan</label>
+                                    <textarea
+                                        value={note}
+                                        onChange={(e) => setNote(e.target.value)}
+                                        placeholder="Contoh: Pedas, pisah saus, dll..."
+                                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all resize-none font-medium"
+                                        rows="2"
+                                    />
+                                </div>
 
-                            {/* Footer / Action */}
-                            <div className="pt-2">
+                                {/* CTA Button */}
                                 <button
                                     onClick={handleConfirm}
-                                    className="flex w-full items-center justify-between rounded-xl bg-primary p-4 font-bold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary-dark hover:scale-[1.02] active:scale-[0.98]"
+                                    className="group flex w-full items-center justify-between rounded-full bg-orange-500 p-2 pl-6 font-bold text-white shadow-xl shadow-orange-500/20 transition-all hover:bg-orange-600 active:scale-[0.98]"
                                 >
-                                    <span>Tambah ke Keranjang</span>
-                                    <span className="rounded-lg bg-white/20 px-3 py-1 text-sm">
-                                        {formatPrice(totalPrice)}
+                                    <span className="uppercase tracking-widest text-xs">Tambah Pesanan</span>
+                                    <span className="rounded-full bg-white text-orange-600 px-6 py-3 text-sm font-black transition-transform group-hover:scale-105">
+                                        {formatPrice(product.price * quantity)}
                                     </span>
                                 </button>
                             </div>
+
                         </div>
                     </motion.div>
                 </div>

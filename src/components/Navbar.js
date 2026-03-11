@@ -46,7 +46,7 @@ export default function Navbar() {
                         />
                     </div>
                     <span className={`text-2xl font-bold tracking-tight transition-colors ${isScrolled ? "text-primary" : "text-white drop-shadow-md"}`}>
-                        Sentra Dimsum
+                        Sentra Dimsum Cimahi
                     </span>
                 </Link>
                 <div className="flex items-center gap-4">

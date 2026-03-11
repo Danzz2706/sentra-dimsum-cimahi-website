@@ -6,7 +6,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import ProductCard from "@/components/ProductCard";
 import ProductModal from "@/components/ProductModal";
 
-const CATEGORIES = ["Semua", "Mentai", "Kukus", "Goreng", "Frozen", "Minuman", "Cimol"];
+const CATEGORIES = ["Semua", "Mentai", "Original", "Goreng", "Frozen", "Minuman", "Cimol"];
 
 
 const LOCATIONS = [
@@ -80,7 +80,7 @@ export default function Home() {
                         </p>
                         <h1 className="text-[16vw] sm:text-[14vw] md:text-[11vw] font-black leading-[0.8] tracking-tighter text-white flex flex-col items-center justify-center">
                             <span>SENTRA</span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 italic mt-2">DIMSUM</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600 italic mt-2">DIMSUM CIMAHI</span>
                         </h1>
 
                         <div className="mt-12 md:mt-16 flex items-center justify-center">
@@ -142,8 +142,8 @@ export default function Home() {
                                         key={cat}
                                         onClick={() => setActiveCategory(cat)}
                                         className={`snap-center shrink-0 px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 ${activeCategory === cat
-                                                ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 scale-100'
-                                                : 'bg-white/50 text-slate-600 border border-white hover:bg-white hover:text-slate-900 hover:shadow-sm scale-95 hover:scale-100'
+                                            ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 scale-100'
+                                            : 'bg-white/50 text-slate-600 border border-white hover:bg-white hover:text-slate-900 hover:shadow-sm scale-95 hover:scale-100'
                                             }`}
                                     >
                                         {cat}
