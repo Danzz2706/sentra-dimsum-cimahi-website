@@ -1,0 +1,97 @@
+[
+  {
+    "id": 10,
+    "name": "Dimsum Mentai (Isi 4)",
+    "category": "Mentai"
+  },
+  {
+    "id": 21,
+    "name": "DIMSUM FROZEN (MIX NORI LUMPIA)",
+    "category": "Frozen"
+  },
+  {
+    "id": 4,
+    "name": "Cimol Bojot Mozzarela",
+    "category": "Cimol"
+  },
+  {
+    "id": 22,
+    "name": "DIMSUM MENTAI PARTY SIZE",
+    "category": "Mentai"
+  },
+  {
+    "id": 23,
+    "name": "DIMSUM MIX MENTAI PARTY SIZE",
+    "category": "Mentai"
+  },
+  {
+    "id": 2,
+    "name": "Dimsum Udang",
+    "category": "Original"
+  },
+  {
+    "id": 3,
+    "name": "Dimsum Nori",
+    "category": "Original"
+  },
+  {
+    "id": 1,
+    "name": "Dimsum Ayam Original ( isi 8 pcs)",
+    "category": "Original"
+  },
+  {
+    "id": 15,
+    "name": "Thai Tea Original",
+    "category": "Minuman"
+  },
+  {
+    "id": 11,
+    "name": "Dimsum Mentai (Isi 6)",
+    "category": "Mentai"
+  },
+  {
+    "id": 14,
+    "name": "Matcha Latte Ice",
+    "category": "Minuman"
+  },
+  {
+    "id": 6,
+    "name": "Es Coklat",
+    "category": "Minuman"
+  },
+  {
+    "id": 17,
+    "name": "DIMSUM FROZEN (MIX MOZZA)",
+    "category": "Frozen"
+  },
+  {
+    "id": 16,
+    "name": "DIMSUM FROZEN (MIX B)",
+    "category": "Frozen"
+  },
+  {
+    "id": 13,
+    "name": "Es Kopi Susu ",
+    "category": "Minuman"
+  },
+  {
+    "id": 5,
+    "name": "DIMSUM FROZEN (MIX C)",
+    "category": "Frozen"
+  },
+  {
+    "id": 18,
+    "name": "DIMSUM FROZEN (CIMUT)",
+    "category": "Frozen"
+  },
+  {
+    "id": 20,
+    "name": "DIMSUM FROZEN (FULL LUMPIA)",
+    "category": "Frozen"
+  },
+  {
+    "id": 19,
+    "name": "DIMSUM FROZEN (FULL NORI)",
+    "category": "Frozen"
+  }
+]

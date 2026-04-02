@@ -303,28 +303,14 @@ export default function CartDrawer() {
                         {cart.length > 0 && (
                             <div className="mb-10 space-y-8">
 
-                                {/* Order Type Segmented Control (Pill Style) */}
-                                <div className="flex p-1.5 bg-slate-100 rounded-full border border-slate-200/50">
-                                    <button
-                                        onClick={() => setOrderType("takeaway")}
-                                        className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-full transition-all duration-300 ${orderType === "takeaway" ? "bg-white text-slate-900 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
-                                    >
-                                        Ambil Sendiri
-                                    </button>
-                                    <button
-                                        onClick={() => setOrderType("delivery")}
-                                        className={`flex-1 py-3 text-[11px] font-black uppercase tracking-widest rounded-full transition-all duration-300 ${orderType === "delivery" ? "bg-slate-900 text-white shadow-md" : "text-slate-500 hover:text-slate-700"}`}
-                                    >
-                                        Delivery
-                                    </button>
-                                </div>
+
 
                                 {/* Form Section */}
                                 <div className="space-y-5">
                                     {/* Branch Selection */}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                                            {orderType === "takeaway" ? "Lokasi Pengambilan" : "Kirim dari Cabang"}
+                                            Cabang
                                         </label>
                                         <div className="relative">
                                             <select
@@ -340,12 +326,10 @@ export default function CartDrawer() {
                                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                                             </div>
                                         </div>
-                                        {orderType === "takeaway" && (
-                                            <p className="text-[11px] text-slate-500 ml-1 font-medium flex items-start gap-1.5">
-                                                <span className="text-orange-500 mt-0.5">📍</span>
-                                                {selectedBranch.address}
-                                            </p>
-                                        )}
+                                        <p className="text-[11px] text-slate-500 ml-1 font-medium flex items-start gap-1.5">
+                                            <span className="text-orange-500 mt-0.5">📍</span>
+                                            {selectedBranch.address}
+                                        </p>
                                     </div>
 
                                     {/* Personal Info */}
@@ -372,60 +356,6 @@ export default function CartDrawer() {
                                         </div>
                                     </div>
 
-                                    {/* Map Delivery Section */}
-                                    {orderType === "delivery" && storeSettings?.store_lat && (
-                                        <div className="space-y-4 pt-4 border-t border-slate-100">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Tujuan Pengantaran</label>
-
-                                            {/* Search Input */}
-                                            <div className="relative z-20">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Cari jalan, gedung, daerah..."
-                                                    value={searchQuery}
-                                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                                    className="w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 py-3.5 text-sm font-medium outline-none transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 shadow-sm"
-                                                />
-                                                <span className="absolute left-4 top-3.5 text-base grayscale opacity-60">📍</span>
-                                                {isSearching && (
-                                                    <div className="absolute right-4 top-4">
-                                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-orange-500"></div>
-                                                    </div>
-                                                )}
-
-                                                {/* Search Results */}
-                                                {searchResults.length > 0 && (
-                                                    <ul className="absolute mt-2 max-h-60 w-full overflow-auto rounded-2xl border border-slate-100 bg-white py-2 shadow-xl ring-1 ring-black/5">
-                                                        {searchResults.map((result, index) => (
-                                                            <li
-                                                                key={result.id || index}
-                                                                onClick={() => handleSelectResult(result)}
-                                                                className="cursor-pointer px-5 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-b-0"
-                                                            >
-                                                                <p className="text-sm font-bold text-slate-900 line-clamp-1">{result.text}</p>
-                                                                <p className="text-[11px] font-medium text-slate-500 line-clamp-1 mt-0.5">{result.place_name}</p>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                )}
-                                            </div>
-
-                                            <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-slate-50">
-                                                <LocationPicker
-                                                    storeLocation={{ lat: selectedBranch.lat, lng: selectedBranch.lng }}
-                                                    onLocationSelect={handleLocationSelect}
-                                                    selectedPosition={deliveryCoords}
-                                                />
-                                            </div>
-
-                                            <textarea
-                                                placeholder="Detail Alamat Lengkap (Nomor Rumah, Patokan, dll)"
-                                                value={customerData.address}
-                                                onChange={(e) => setCustomerData({ ...customerData, address: e.target.value })}
-                                                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm font-medium outline-none transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 resize-none shadow-sm min-h-[90px]"
-                                            />
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         )}
@@ -511,11 +441,10 @@ export default function CartDrawer() {
 
                         <div className="flex flex-col gap-3">
                             <button
-                                onClick={handlePayment}
-                                disabled={isShopClosed}
-                                className={`w-full rounded-2xl py-4 text-xs font-black uppercase tracking-widest text-white transition-all flex items-center justify-center gap-2 ${isShopClosed ? 'bg-slate-300 cursor-not-allowed text-slate-500' : 'bg-slate-900 hover:bg-orange-500 hover:shadow-xl hover:shadow-orange-500/20 active:scale-[0.98]'}`}
+                                disabled={true}
+                                className="w-full rounded-2xl py-4 text-xs font-black uppercase tracking-widest text-white transition-all flex items-center justify-center gap-2 bg-slate-300 cursor-not-allowed text-slate-500"
                             >
-                                Bayar via QRIS / VA
+                                QRIS / VA (Under Maintenance)
                             </button>
                             <button
                                 onClick={handleCheckout}

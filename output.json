@@ -1,0 +1,25 @@
+{
+  "kukus_in_name": [],
+  "katori_in_name": [],
+  "category_kukus": [],
+  "category_original": [
+    {
+      "id": 2,
+      "name": "Dimsum Udang",
+      "category": "Original",
+      "description": "Kombinasi ayam dan udang segar."
+    },
+    {
+      "id": 3,
+      "name": "Dimsum Nori",
+      "category": "Original",
+      "description": "Dimsum balut rumput laut."
+    },
+    {
+      "id": 1,
+      "name": "Dimsum Ayam Original ( isi 8 pcs)",
+      "category": "Original",
+      "description": "Dimsum ayam lembut dengan rasa otentik."
+    }
+  ]
+}

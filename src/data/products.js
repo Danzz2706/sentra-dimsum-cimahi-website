@@ -5,7 +5,7 @@ export const products = [
         description: "Dimsum ayam lembut dengan rasa otentik, disajikan hangat.",
         price: 15000,
         image: "https://images.unsplash.com/photo-1496116218417-1a781b1c423c?auto=format&fit=crop&q=80&w=800",
-        category: "Kukus",
+        category: "Original",
         is_popular: true,
     },
     {
@@ -14,7 +14,7 @@ export const products = [
         description: "Kombinasi ayam dan udang segar yang menggugah selera.",
         price: 18000,
         image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800",
-        category: "Kukus",
+        category: "Original",
         is_popular: true,
     },
     {
@@ -23,7 +23,7 @@ export const products = [
         description: "Dimsum balut rumput laut dengan isian padat.",
         price: 16000,
         image: "https://images.unsplash.com/photo-1596627191435-fa6012082238?auto=format&fit=crop&q=80&w=800",
-        category: "Kukus",
+        category: "Original",
         is_popular: false,
     },
     {
@@ -41,7 +41,7 @@ export const products = [
         description: "Kulit transparan lembut dengan udang utuh di dalamnya.",
         price: 20000,
         image: "https://images.unsplash.com/photo-1626804475297-411d8c6b7143?auto=format&fit=crop&q=80&w=800",
-        category: "Kukus",
+        category: "Original",
         is_popular: false,
     },
     {
@@ -50,7 +50,7 @@ export const products = [
         description: "Bakpao lembut dengan isian custard telur asin meleleh.",
         price: 12000,
         image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&q=80&w=800",
-        category: "Kukus",
+        category: "Original",
         is_popular: false,
     },
     {

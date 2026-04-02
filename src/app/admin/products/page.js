@@ -288,7 +288,7 @@ export default function ProductsPage() {
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                         className="w-full rounded-lg border border-gray-300 p-2 outline-none focus:border-primary"
                                     >
-                                        {["Mentai", "Kukus", "Goreng", "Frozen", "Minuman", "Cimol"].map((c) => (
+                                        {["Mentai", "Original", "Goreng", "Frozen", "Minuman", "Cimol"].map((c) => (
                                             <option key={c} value={c}>{c}</option>
                                         ))}
                                     </select>

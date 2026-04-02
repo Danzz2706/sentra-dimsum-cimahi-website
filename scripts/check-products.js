@@ -1,40 +1,34 @@
 const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
-const path = require('path');
+require('dotenv').config({ path: '.env.local' });
 
-// Read .env.local manually
-const envPath = path.resolve(__dirname, '../.env.local');
-const envContent = fs.readFileSync(envPath, 'utf8');
-const envVars = {};
-envContent.split('\n').forEach(line => {
-    const [key, value] = line.split('=');
-    if (key && value) {
-        envVars[key.trim()] = value.trim();
-    }
-});
-
-const supabaseUrl = envVars['NEXT_PUBLIC_SUPABASE_URL'];
-const supabaseKey = envVars['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
-
-if (!supabaseUrl || !supabaseKey) {
-    console.error('Missing Supabase keys');
-    process.exit(1);
-}
-
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function listProducts() {
-    const { data, error } = await supabase.from('products').select('*').order('id', { ascending: false });
+async function checkProducts() {
+    console.log("Checking products in Supabase...");
+    const { data, error } = await supabase
+        .from('products')
+        .select('id, name, category');
+
     if (error) {
-        console.error('Error fetching products:', error);
+        console.error("Error fetching products:", error);
         return;
     }
 
-    console.log('Products found:', data.length);
-    if (data.length > 0) {
-        console.log('Keys:', Object.keys(data[0]));
-        console.log('First product:', data[0]);
+    console.log("Found products:");
+    data.forEach(p => {
+        console.log(`- ID: ${p.id}, Name: "${p.name}", Category: "${p.category}"`);
+    });
+
+    const katori = data.find(p => p.name.toLowerCase().includes("katori"));
+    if (katori) {
+        console.log("\nFound target product!");
+        console.log(`ID: ${katori.id}`);
+        console.log(`Current Name: ${katori.name}`);
+    } else {
+        console.log("\n" + "Katori" + " not found in products.");
     }
 }
 
-listProducts();
+checkProducts();
